@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/Nats.io.samples/.vs/Nats.io.samples
+/Nats.io.samples/Common/bin/Debug
+/Nats.io.samples/Common/obj/Debug
+/Nats.io.samples/packages
+/Nats.io.samples/Server/bin/Debug
+/Nats.io.samples/Server/obj/Debug
+/Nats.io.samples/Subscriber/bin/Debug
+/Nats.io.samples/Subscriber/obj/Debug

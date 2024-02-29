@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{045F8207-5FAF-4773-8F72-E06544F47691}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subscriber", "Subscriber\Subscriber.csproj", "{32963B63-77FD-4FAD-91BE-48DA52CA81A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{839B3059-D14D-4941-8120-E49973353492}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{045F8207-5FAF-4773-8F72-E06544F47691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{045F8207-5FAF-4773-8F72-E06544F47691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{045F8207-5FAF-4773-8F72-E06544F47691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{045F8207-5FAF-4773-8F72-E06544F47691}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32963B63-77FD-4FAD-91BE-48DA52CA81A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32963B63-77FD-4FAD-91BE-48DA52CA81A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32963B63-77FD-4FAD-91BE-48DA52CA81A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32963B63-77FD-4FAD-91BE-48DA52CA81A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{839B3059-D14D-4941-8120-E49973353492}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{839B3059-D14D-4941-8120-E49973353492}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{839B3059-D14D-4941-8120-E49973353492}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{839B3059-D14D-4941-8120-E49973353492}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FAA291B7-08EC-48F8-81AF-02BA193FC78F}
+	EndGlobalSection
+EndGlobal
