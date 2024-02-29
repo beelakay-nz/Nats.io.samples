@@ -92,25 +92,25 @@ namespace Server
 
         private static void Publish(string[] args)
         {
-            if (args == null || args.Length != 2)
+            if (args == null || args.Length < 2)
             {
                 Console.WriteLine("invalid arguments for publish command");
                 return;
             }
 
-            var topic = args[0];
-            var content = args[1];
+            var subject = args[0];
+            var content = string.Join(" ", args.Skip(1));
 
             try
             {
-                NatsConnection.Publish(topic, Encoding.UTF8.GetBytes(content));
+                NatsConnection.Publish(subject, Encoding.UTF8.GetBytes(content));
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error publishing message: {ex.Message}");
             }
 
-            Console.WriteLine($"published: '{content}' to {topic}");
+            Console.WriteLine($"published: '{content}' to {subject}");
         }
     }
 }

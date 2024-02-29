@@ -3,6 +3,7 @@ using NATS.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,8 +22,17 @@ namespace Subscriber
             if (NatsConnection == null)
                 return;
 
+            IAsyncSubscription subAsync = NatsConnection.SubscribeAsync(">", OnMessageReceived);
+
             Console.WriteLine("listening...");
             Console.ReadLine();
+        }
+
+        private static void OnMessageReceived(object sender, MsgHandlerEventArgs args)
+        {
+            var message = Encoding.UTF8.GetString(args.Message.Data);
+
+            Console.WriteLine($"received: '{message}' on {args.Message.Subject}");
         }
     }
 }
