@@ -1,5 +1,6 @@
 ﻿using Common;
 using NATS.Client;
+using NATS.Client.JetStream;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,11 @@ namespace Server
         private static IConnection NatsConnection = null;
         private static string NatsUrl = null;
 
+        private static IJetStream JetStream;
+        private static IJetStreamManagement JetStreamManagement;
+
+        const string subjectName = "eventsqueue";
+
         static void Main(string[] args)
         {
             Console.WriteLine("starting up...");
@@ -22,7 +28,28 @@ namespace Server
             NatsConnection = Helpers.ConnectToNats(NatsUrl);
             if (NatsConnection == null)
                 return;
-        
+
+            JetStream = NatsConnection.CreateJetStreamContext();
+            JetStreamManagement = NatsConnection.CreateJetStreamManagementContext();
+
+            string streamName = "migrationQueue";
+
+            JetStreamManagement.DeleteStream(streamName);
+
+            JetStreamManagement.AddStream(StreamConfiguration.Builder()
+                .WithName(streamName)
+                .WithStorageType(StorageType.Memory)
+                .WithSubjects(subjectName)
+                .WithRetentionPolicy(RetentionPolicy.WorkQueue)
+                .Build());
+
+            const int defaultSubscribers = 2;
+            Console.WriteLine($"starting {1} subscribers by default...");
+            for(var i = 0; i < defaultSubscribers; ++i)
+            {
+                LaunchSubscriber();
+            }
+
             for (; ;)
             {
                 var input = Console.ReadLine().ToLowerInvariant();
@@ -47,8 +74,8 @@ namespace Server
 
             switch (firstWord)
             {
-                case "publish":
-                    Publish(splitInput.Skip(1).ToArray());
+                case "pub":
+                    Publish(string.Join(" ", splitInput.Skip(1)));
                     break;
 
                 case "launch":
@@ -90,27 +117,18 @@ namespace Server
             Process.Start("Subscriber.exe", NatsUrl);
         }
 
-        private static void Publish(string[] args)
+        private static void Publish(string message)
         {
-            if (args == null || args.Length < 2)
-            {
-                Console.WriteLine("invalid arguments for publish command");
-                return;
-            }
-
-            var subject = args[0];
-            var content = string.Join(" ", args.Skip(1));
-
             try
             {
-                NatsConnection.Publish(subject, Encoding.UTF8.GetBytes(content));
+                JetStream.Publish(subjectName, Encoding.UTF8.GetBytes(message), PublishOptions.Builder().WithTimeout(2000).Build());
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error publishing message: {ex.Message}");
             }
 
-            Console.WriteLine($"published: '{content}' to {subject}");
+            Console.WriteLine($"published: '{message}' to {subjectName}");
         }
     }
 }

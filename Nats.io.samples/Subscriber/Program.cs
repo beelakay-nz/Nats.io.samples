@@ -1,5 +1,6 @@
 ﻿using Common;
 using NATS.Client;
+using NATS.Client.JetStream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,12 @@ namespace Subscriber
     {
         private static IConnection NatsConnection = null;
 
-        static void Main(string[] args)
+        private static IJetStream JetStream;
+        private static IJetStreamManagement JetStreamManagement;
+
+        private static Random Rand = new Random();
+
+        static async Task Main(string[] args)
         {
             Console.WriteLine("starting up...");
 
@@ -22,17 +28,51 @@ namespace Subscriber
             if (NatsConnection == null)
                 return;
 
-            IAsyncSubscription subAsync = NatsConnection.SubscribeAsync(">", OnMessageReceived);
+            JetStream = NatsConnection.CreateJetStreamContext();
+            JetStreamManagement = NatsConnection.CreateJetStreamManagementContext();
 
-            Console.WriteLine("listening...");
-            Console.ReadLine();
+            string streamName = "migrationQueue";
+
+            var subOpts = PullSubscribeOptions.Builder()
+                .WithDurable("myConsumer")
+                .WithStream(streamName)
+                .Build();
+
+            var sub  = JetStream.PullSubscribe("eventsqueue", subOpts);
+
+            for(; ;)
+            {
+                Console.WriteLine("pulling from nats server...");
+                sub.Pull(10); 
+
+                for(; ;)
+                {
+                    var msg = sub.NextMessage();
+
+                    if (msg == null)
+                        break;
+
+                    OnMessageReceived(msg);
+                }
+
+                await Task.Delay(100);
+            }
         }
 
-        private static void OnMessageReceived(object sender, MsgHandlerEventArgs args)
+        private static void OnMessageReceived(Msg message)
         {
-            var message = Encoding.UTF8.GetString(args.Message.Data);
+            Console.WriteLine($"received: '{message}' on {message.Subject}. is jetstream: {message.IsJetStream}");
 
-            Console.WriteLine($"received: '{message}' on {args.Message.Subject}");
+            if (Rand.Next(10) < 5)
+            {
+                Console.WriteLine($"failed to process message");
+                message.Nak();
+            }
+            else
+            {
+                Console.WriteLine($"successfully processed message");
+                message.Ack();
+            }
         }
     }
 }
