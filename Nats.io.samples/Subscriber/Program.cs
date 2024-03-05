@@ -52,16 +52,21 @@ namespace Subscriber
                     if (msg == null)
                         break;
 
-                    OnMessageReceived(msg);
+                    await OnMessageReceived(msg);
                 }
 
                 await Task.Delay(100);
             }
         }
 
-        private static void OnMessageReceived(Msg message)
+        private static async Task OnMessageReceived(Msg message)
         {
             Console.WriteLine($"received: '{message}' on {message.Subject}. is jetstream: {message.IsJetStream}");
+
+            message.InProgress();
+
+            Console.WriteLine($"processing...");
+            await Task.Delay(TimeSpan.FromSeconds(3));
 
             if (Rand.Next(10) < 5)
             {

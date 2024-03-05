@@ -34,7 +34,11 @@ namespace Server
 
             string streamName = "migrationQueue";
 
-            JetStreamManagement.DeleteStream(streamName);
+            try
+            {
+                JetStreamManagement.DeleteStream(streamName);
+            }
+            catch { }
 
             JetStreamManagement.AddStream(StreamConfiguration.Builder()
                 .WithName(streamName)
