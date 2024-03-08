@@ -38,34 +38,52 @@ namespace Subscriber
                 .WithStream(streamName)
                 .Build();
 
-            var sub  = JetStream.PullSubscribe("eventsqueue", subOpts);
+            // pull sub - only one subscriber will receive message
+            // push sub - all subscribers receive all messages
+            var isPull = true;
 
-            for(; ;)
+            if (isPull)
             {
-                Console.WriteLine("pulling from nats server...");
-                sub.Pull(10); 
+                var pullSub  = JetStream.PullSubscribe("eventsqueue", subOpts);
 
                 for(; ;)
                 {
-                    var msg = sub.NextMessage();
+                    Console.WriteLine("pulling from nats server...");
+                    pullSub.Pull(10); 
 
-                    if (msg == null)
-                        break;
+                    for(; ;)
+                    {
+                        var msg = pullSub.NextMessage();
 
-                    await OnMessageReceived(msg);
+                        if (msg == null)
+                            break;
+
+                        await OnMessageReceived(msg);
+                    }
+
+                    await Task.Delay(100);
                 }
-
-                await Task.Delay(100);
             }
+            else
+            {
+                var pushSub = JetStream.PushSubscribeAsync("eventsqueue", OnPushMessageReceived, false);
+
+                Console.ReadLine();
+            }
+        }
+
+        private static void OnPushMessageReceived(object sender, NATS.Client.MsgHandlerEventArgs args)
+        {
+            Task.Run(async () => await OnMessageReceived(args.Message));
         }
 
         private static async Task OnMessageReceived(Msg message)
         {
             Console.WriteLine($"received: '{message}' on {message.Subject}. is jetstream: {message.IsJetStream}");
 
-            message.InProgress();
+            // message.InProgress();
 
-            Console.WriteLine($"processing...");
+            Console.WriteLine($"processing message at {DateTime.UtcNow}...");
             await Task.Delay(TimeSpan.FromSeconds(3));
 
             if (Rand.Next(10) < 5)
@@ -76,7 +94,7 @@ namespace Subscriber
             else
             {
                 Console.WriteLine($"successfully processed message");
-                message.Ack();
+               message.Ack();
             }
         }
     }
